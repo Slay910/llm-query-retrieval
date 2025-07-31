@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-requests
-openai
-pinecone-client
-langchain
-PyMuPDF
