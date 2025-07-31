@@ -3,5 +3,6 @@ uvicorn
 requests
 openai
 pinecone
+langchain-community
 langchain
 PyMuPDF
