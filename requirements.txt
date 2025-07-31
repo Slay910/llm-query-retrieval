@@ -2,6 +2,6 @@ fastapi
 uvicorn
 requests
 openai
-pinecone-client
+pinecone
 langchain
 PyMuPDF
