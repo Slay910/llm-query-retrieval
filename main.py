@@ -7,8 +7,8 @@ import requests
 import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Pinecone as PineconeStore
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Pinecone as PineconeStore
 
 # Initialize app
 app = FastAPI()
