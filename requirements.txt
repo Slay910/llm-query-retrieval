@@ -1,9 +1,8 @@
 fastapi
 uvicorn
 openai
-requests
-pydantic
-langchain>=0.2
-langchain-community>=0.2
+pinecone-client
+langchain>=0.2.0
+langchain-community
 PyMuPDF
-pinecone-client>=3.0.0
+requests
