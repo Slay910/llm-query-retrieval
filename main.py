@@ -2,30 +2,33 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 import openai
+import pinecone
 import requests
 import os
-
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.vectorstores import Pinecone as PineconeStore
 
-from pinecone import Pinecone
-
-# FastAPI app
+# Initialize app
 app = FastAPI()
 
-# Load API keys
+# Load env keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+PINECONE_ENV = os.getenv("PINECONE_ENV")
 INDEX_NAME = "policy-index"
 
-# Initialize clients
-openai.api_key = OPENAI_API_KEY
-pc = Pinecone(api_key=PINECONE_API_KEY)
-index = pc.Index(INDEX_NAME)
+# Safety check for env vars
+if not OPENAI_API_KEY or not PINECONE_API_KEY or not PINECONE_ENV:
+    raise RuntimeError("❌ Missing one or more required environment variables: OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_ENV")
 
-# Request & response schemas
+# Initialize APIs
+openai.api_key = OPENAI_API_KEY
+pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENV)
+index = pinecone.Index(INDEX_NAME)
+
+# Request & Response Schemas
 class QARequest(BaseModel):
     documents: str
     questions: List[str]
@@ -33,7 +36,7 @@ class QARequest(BaseModel):
 class QAResponse(BaseModel):
     answers: List[str]
 
-# Load and chunk PDF
+# Load + Chunk PDF
 def load_and_chunk_pdf(pdf_url):
     local_path = "/tmp/temp.pdf"
     with open(local_path, 'wb') as f:
@@ -43,12 +46,12 @@ def load_and_chunk_pdf(pdf_url):
     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     return splitter.split_documents(documents)
 
-# Embed and upsert
+# Embed & Upsert
 def embed_and_upsert(docs):
     embedder = OpenAIEmbeddings(model="text-embedding-3-small")
     PineconeStore.from_documents(docs, embedder, index_name=INDEX_NAME)
 
-# Answer query
+# Answer one question
 def answer_query(question):
     embedder = OpenAIEmbeddings(model="text-embedding-3-small")
     vectorstore = PineconeStore(index_name=INDEX_NAME, embedding=embedder)
@@ -73,7 +76,7 @@ def answer_query(question):
     )
     return response.choices[0].message.content.strip()
 
-# Endpoint
+# API endpoint
 @app.post("/api/v1/hackrx/run", response_model=QAResponse)
 def run_query(req: QARequest):
     try:
@@ -82,4 +85,4 @@ def run_query(req: QARequest):
         answers = [answer_query(q) for q in req.questions]
         return {"answers": answers}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"❌ Server error: {str(e)}")
