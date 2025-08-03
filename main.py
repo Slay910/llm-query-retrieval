@@ -33,13 +33,13 @@ PINECONE_ENV = os.getenv("PINECONE_ENV") or "us-east-1"
 # Pinecone setup
 pc = Pinecone(api_key=PINECONE_API_KEY)
 index_name = "query-retrieval"
-
+spec = ServerlessSpec(cloud="aws", region=PINECONE_ENV)
 if index_name not in pc.list_indexes().names():
     pc.create_index(
         name=index_name,
         dimension=1536,
         metric="cosine",
-        spec=ServerlessSpec(cloud="aws", region=PINECONE_ENV),
+        spec=spec
     )
 
 index = pc.Index(index_name)
