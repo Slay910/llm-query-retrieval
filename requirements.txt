@@ -1,10 +1,11 @@
 fastapi
 uvicorn
 python-multipart
-langchain
 openai
 tiktoken
 pypdf
 python-docx
 python-dotenv
-pinecone  
+pinecone>=3.0.0
+langchain>=0.1.14
+langchain-community>=0.0.11
