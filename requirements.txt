@@ -1,9 +1,10 @@
 fastapi
 uvicorn
+python-dotenv
 openai
-requests
-langchain>=0.2
+pinecone-client
+langchain
 langchain-community
-pinecone
+unstructured
 PyMuPDF
-pydantic
+python-multipart
