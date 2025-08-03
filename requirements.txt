@@ -4,6 +4,6 @@ openai
 requests
 langchain>=0.2
 langchain-community
-pinecone-client
+pinecone
 PyMuPDF
 pydantic
